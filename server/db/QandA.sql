@@ -1,5 +1,7 @@
 
-BEGIN;
+DROP DATABASE IF EXISTS qanda;
+CREATE DATABASE qanda;
+\c qanda;
 
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
@@ -42,4 +44,3 @@ CREATE TABLE answer_photos (
 );
 
 
-COMMIT;
