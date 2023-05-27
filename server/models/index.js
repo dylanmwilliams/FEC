@@ -1,0 +1,1 @@
+exports.QandA = require('./QandAModels');

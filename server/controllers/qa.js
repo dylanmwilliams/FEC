@@ -1,144 +1,111 @@
-const axios = require('axios');
-
-const { ATELIER_API, API_TOKEN } = process.env;
+const models = require('../models');
 
 module.exports = {
-  getQuestions(req, res) {
-    console.log('count: ', req.query.count, 'page: ', req.query.page);
+  getQuestions: (req, res) => {
+    console.log('this is the questions query >>>>>>>>>>>>>>>>>>>>', req.query);
+    const { id, page, count } = req.query;
 
-    axios.get(`${ATELIER_API}/qa/questions`, {
-      params: {
-        product_id: req.query.id,
-        page: req.query.page,
-        count: req.query.count,
-      },
-      headers: {
-        authorization: API_TOKEN,
-      },
-    })
+    models.QandA.getAllQuestions(id, page, count)
       .then((results) => {
-        res.status(200).send(results.data);
+        console.log('Successfully sent questions from the db', { results });
+        res.status(200).send({ results });
       })
       .catch((err) => {
-        res.status(500).send(err);
+        console.error('Error sending questions from the db', err);
+        res.status(500).send();
       });
   },
 
-  getAnswers(req, res) {
-    axios.get(`${ATELIER_API}/qa/questions/${req.query.id}/answers`, {
-      params: {
-        page: req.query.page,
-        count: req.query.count,
-      },
-      headers: {
-        authorization: API_TOKEN,
-      },
-    })
+  getAnswers: (req, res) => {
+    console.log('This is from the controller >>>>>>>>>>>>>>>', req.query);
+    const { id, page, count } = req.query;
+
+    models.QandA.getAllAnswers(id, page, count)
       .then((results) => {
-        res.status(200).send(results.data);
+        console.log('Successfully sent answers from the db', { results });
+        res.status(200).send({ results });
       })
       .catch((err) => {
-        res.status(500).send(err);
+        console.error('Error sending answers from the db', err);
+        res.status(500).send();
       });
   },
 
-  reportQuestion(req, res) {
-    console.log(req.body.id);
-    axios.put(`${ATELIER_API}/qa/questions/${req.body.id}/report`, {}, {
-      headers: {
-        authorization: API_TOKEN,
-      },
-    })
+  reportQuestion: (req, res) => {
+    const { id } = req.id;
+
+    models.QandA.reportQuestionDB(id)
       .then(() => {
+        console.log('Successfully reported question');
         res.sendStatus(204);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        console.error('Error reporting question', err);
       });
   },
 
-  reportAnswer(req, res) {
-    axios.put(`${ATELIER_API}/qa/answers/${req.body.id}/report`, {}, {
-      headers: {
-        authorization: API_TOKEN,
-      },
-    })
+  reportAnswer: (req, res) => {
+    const { id } = req.id;
+
+    models.QandA.reportAnswerDB(id)
       .then(() => {
+        console.log('Successfully reported answer');
         res.sendStatus(204);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        console.error('Error reporting answer', err);
       });
   },
 
-  markQuestion(req, res) {
-    axios.put(`${ATELIER_API}/qa/answers/${req.body.id}/helpful`, {}, {
-      headers: {
-        authorization: API_TOKEN,
-      },
-    })
+  markQuestion: (req, res) => {
+    const { id } = req.body;
+
+    models.QandA.markQuestionDB(id)
       .then(() => {
+        console.log('Successfully marked question as helpful');
         res.sendStatus(204);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        console.error('Error marking question as helpful', err);
       });
   },
 
-  markAnswer(req, res) {
-    axios.put(`${ATELIER_API}/qa/answers/${req.body.id}/helpful`, {}, {
-      headers: {
-        authorization: API_TOKEN,
-      },
-    })
+  markAnswer: (req, res) => {
+    const { id } = req.body;
+
+    models.QandA.markAnswerDB(id)
       .then(() => {
+        console.log('Successfully marked answer as helpful');
         res.sendStatus(204);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        console.error('Error marking answer as helpful', err);
       });
   },
 
-  postQuestion(req, res) {
+  postQuestion: (req, res) => {
     console.log('req is', req.body);
-    axios.post(`${ATELIER_API}/qa/questions`, {
-        body: req.body.question,
-        name: req.body.user_name,
-        email: req.body.email,
-        product_id: req.body.id,
-      },
-      {
-        headers: {
-          authorization: API_TOKEN,
-        },
-      },
-    )
+
+    models.QandA.postQuestionDB(req.body)
       .then(() => {
+        console.log('Successfully posted question to db');
         res.sendStatus(201);
       })
       .catch((err) => {
-        console.log(err);
-        res.status(500).send(err);
-      })
+        console.error('Error posting question to db', err);
+      });
   },
 
-  postAnswer(req, res) {
-    axios.post(`${ATELIER_API}/qa/questions/${req.body.id}/answers`, {
-        body: req.body.answer,
-        name: req.body.user_name,
-        email: req.body.email,
-      },
-      {
-        headers: {
-          authorization: API_TOKEN,
-        },
-      },
-    )
+  postAnswer: (req, res) => {
+    console.log('req is', req.body);
+
+    models.QandA.postAnswerDB(req.body)
       .then(() => {
+        console.log('Successfully posted answer answer to db');
         res.sendStatus(201);
       })
       .catch((err) => {
-        res.status(500).send(err);
-      })
-  }
+        console.error('Error posting answer to db', err);
+      });
+  },
 };

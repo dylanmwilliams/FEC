@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const {
-  getQuestions, getAnswers, postQuestion, postAnswer, reportQuestion, reportAnswer, markQuestion, markAnswer,
+  getQuestions, getAnswers, postQuestion, postAnswer,
+  reportQuestion, reportAnswer, markQuestion, markAnswer,
 } = require('../controllers/qa');
 
 router.get('/questions', getQuestions);
