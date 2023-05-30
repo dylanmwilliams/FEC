@@ -4,7 +4,7 @@ import ImageList from '../imageList/ImageList';
 
 export default function AnswerListEntry({ answer }) {
   const [marked, setMarked] = useState(false);
-  const [helpful, setHelpful] = useState(answer.helpfulness);
+  const [helpful, setHelpful] = useState(answer.helpful);
   const [reported, setReported] = useState(answer.reported);
   const dateOptions = {
     year: 'numeric',
@@ -13,7 +13,7 @@ export default function AnswerListEntry({ answer }) {
   };
 
   function markAnswerHelpful() {
-    axios.put('/qa/answers/helpful', { id: answer.answer_id })
+    axios.put('/qa/answers/helpful', { id: answer.id })
       .then(() => {
         setMarked(true);
         setHelpful(helpful + 1);
@@ -25,7 +25,7 @@ export default function AnswerListEntry({ answer }) {
   }
 
   function reportAnswer() {
-    axios.put('/qa/answers/report', { id: answer.answer_id })
+    axios.put('/qa/answers/report', { id: answer.id })
       .then(() => {
         setReported(true);
         console.log('Report answer successful');
@@ -46,7 +46,7 @@ export default function AnswerListEntry({ answer }) {
           <div className="name-and-date">
             {answer.answerer_name}
             {', '}
-            {new Date(answer.date).toLocaleDateString('en-us', dateOptions)}
+            {new Date(answer.date_written).toLocaleDateString('en-us', dateOptions)}
           </div>
         </div>
         <div className="helpful-report-container">

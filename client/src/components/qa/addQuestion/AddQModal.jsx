@@ -9,7 +9,7 @@ export default function AddQModal({ show, revealModal, product }) {
 
   function postQuestion() {
     axios.post('/qa/questions', {
-      id: product.id,
+      product_id: product.id,
       question: qEntry,
       user_name: nameEntry,
       email: emailEntry,

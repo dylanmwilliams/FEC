@@ -7,11 +7,13 @@ module.exports = {
 
     const query = {
       text: `
-      SELECT *
+      SELECT id, product_id, body,
+        to_char(to_timestamp(date_written / 1000), 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as date_written,
+        asker_name, asker_email, reported, helpful
       FROM questions
-      WHERE product_id = $1
+        WHERE product_id = $1
       ORDER BY id
-      LIMIT $2 OFFSET $3;
+        LIMIT $2 OFFSET $3;
       `,
       values: [productId, count, offset],
     };
@@ -28,16 +30,35 @@ module.exports = {
 
     const query = {
       text: `
-      SELECT *
-      FROM questions
-      WHERE question_id = $1
-      Order BY id
-      LIMIT $2 OFFSET $3;
+      SELECT
+        answers.id,
+        answers.question_id,
+        answers.body,
+        to_char(to_timestamp(answers.date_written / 1000), 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as date_written,
+        answers.answerer_name,
+        answers.answerer_email,
+        answers.reported,
+        answers.helpful,
+        array_agg(
+          json_build_object(
+            'id', answer_photos.id,
+            'url', answer_photos.url
+          )
+        ) FILTER (WHERE answer_photos.id IS NOT NULL) as photos
+      FROM answers
+        LEFT JOIN answer_photos ON answers.id = answer_photos.answer_id
+        WHERE question_id = $1
+        GROUP BY answers.id
+        ORDER BY answers.id
+        LIMIT $2 OFFSET $3;
       `,
       values: [questionId, count, offset],
     };
     return db.query(query)
-      .then((res) => res.rows)
+      .then((res) => res.rows.map((row) => {
+        row.photos = row.photos ? row.photos.filter((photo) => photo !== null) : [];
+        return row;
+      }))
       .catch((err) => {
         console.error('Error querying db for answers', err);
         throw err;
@@ -126,15 +147,15 @@ module.exports = {
 
   postQuestionDB: (questionData) => {
     const {
-      question, user_name, email, id,
+      question, user_name, email, product_id,
     } = questionData;
 
     const query = {
       text: `
-      INSERT INTO questions(body, name, email, product_id)
-      VALUES ($1, $2, $3, $4);
-      `,
-      values: [question, user_name, email, id],
+    INSERT INTO questions(body, asker_name, asker_email, product_id, date_written, reported, helpful)
+    VALUES ($1, $2, $3, $4, EXTRACT(EPOCH FROM NOW()) * 1000, false, 0);
+    `,
+      values: [question, user_name, email, product_id],
     };
 
     return db.query(query)
@@ -154,8 +175,8 @@ module.exports = {
 
     const query = {
       text: `
-      INSERT INTO answers(body, name, email, question_id)
-      VALUES ($1, $2, $3, $4);
+      INSERT INTO answers(body, answerer_name, answerer_email, question_id, date_written,reported, helpful)
+      VALUES ($1, $2, $3, $4, EXTRACT(EPOCH FROM NOW()) * 1000, false, 0);
       `,
       values: [answer, user_name, email, id],
     };

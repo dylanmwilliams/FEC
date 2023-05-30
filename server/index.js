@@ -8,7 +8,7 @@ const router = require('./routes');
 const app = express();
 
 // Middleware
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(compression());

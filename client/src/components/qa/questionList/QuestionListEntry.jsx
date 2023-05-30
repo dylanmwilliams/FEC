@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export default function QuestionListEntry({ question }) {
   const [marked, setMarked] = useState(false);
-  const [helpful, setHelpful] = useState(question.question_helpfulness);
+  const [helpful, setHelpful] = useState(question.helpful);
   const [reported, setReported] = useState(question.reported);
   const dateOptions = {
     year: 'numeric',
@@ -12,7 +12,7 @@ export default function QuestionListEntry({ question }) {
   };
 
   function markQuestionHelpful() {
-    axios.put('/qa/questions/helpful', { id: question.question_id })
+    axios.put('/qa/questions/helpful', { id: question.id })
       .then(() => {
         setMarked(true);
         setHelpful(helpful + 1);
@@ -24,7 +24,7 @@ export default function QuestionListEntry({ question }) {
   }
 
   function reportQuestion() {
-    axios.put('/qa/questions/report', { id: question.question_id })
+    axios.put('/qa/questions/report', { id: question.id })
       .then(() => {
         setReported(true);
         console.log('Report question successful');
@@ -39,12 +39,12 @@ export default function QuestionListEntry({ question }) {
       <div className="q-symbol">Q</div>
       <div className="qa-body-asker">
         <div>
-          {question.question_body}
+          {question.body}
         </div>
         <div className="name-and-date">
           {question.asker_name}
           {', '}
-          {new Date(question.question_date).toLocaleDateString('en-us', dateOptions)}
+          {new Date(question.date_written).toLocaleDateString('en-us', dateOptions)}
         </div>
       </div>
       <div className="helpful-report-container">

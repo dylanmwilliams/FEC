@@ -2,7 +2,6 @@ const models = require('../models');
 
 module.exports = {
   getQuestions: (req, res) => {
-    console.log('this is the questions query >>>>>>>>>>>>>>>>>>>>', req.query);
     const { id, page, count } = req.query;
 
     models.QandA.getAllQuestions(id, page, count)
@@ -17,7 +16,6 @@ module.exports = {
   },
 
   getAnswers: (req, res) => {
-    console.log('This is from the controller >>>>>>>>>>>>>>>', req.query);
     const { id, page, count } = req.query;
 
     models.QandA.getAllAnswers(id, page, count)
@@ -32,7 +30,7 @@ module.exports = {
   },
 
   reportQuestion: (req, res) => {
-    const { id } = req.id;
+    const { id } = req.body;
 
     models.QandA.reportQuestionDB(id)
       .then(() => {
@@ -45,7 +43,7 @@ module.exports = {
   },
 
   reportAnswer: (req, res) => {
-    const { id } = req.id;
+    const { id } = req.body;
 
     models.QandA.reportAnswerDB(id)
       .then(() => {
@@ -84,8 +82,6 @@ module.exports = {
   },
 
   postQuestion: (req, res) => {
-    console.log('req is', req.body);
-
     models.QandA.postQuestionDB(req.body)
       .then(() => {
         console.log('Successfully posted question to db');
@@ -97,8 +93,7 @@ module.exports = {
   },
 
   postAnswer: (req, res) => {
-    console.log('req is', req.body);
-
+    console.log(req.body);
     models.QandA.postAnswerDB(req.body)
       .then(() => {
         console.log('Successfully posted answer answer to db');

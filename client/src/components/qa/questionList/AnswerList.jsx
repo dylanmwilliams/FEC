@@ -42,16 +42,17 @@ export default function AnswerList({ id }) {
   }
 
   useEffect(() => {
+    console.log('this is the id >>>>>>>>>>>>>>>>>', id);
     getAllAnswers();
   }, []);
 
   return (
     <>
-      { showAnswers.length > 0
+      {showAnswers.length > 0
         ? (
           <>
             {
-              showAnswers.map((a) => <AnswerListEntry answer={a} key={a.answer_id} />)
+              showAnswers.map((a) => <AnswerListEntry answer={a} key={a.id} />)
             }
             <div className="answer-buttons" data-testid="answer-list">
               {
