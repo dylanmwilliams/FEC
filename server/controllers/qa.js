@@ -1,18 +1,33 @@
+const redis = require('redis');
+
+const client = redis.createClient(6379);
+
 const models = require('../models');
 
 module.exports = {
   getQuestions: (req, res) => {
     const { id, page, count } = req.query;
 
-    models.QandA.getAllQuestions(id, page, count)
-      .then((results) => {
-        console.log('Successfully sent questions from the db', { results });
-        res.status(200).send({ results });
-      })
-      .catch((err) => {
-        console.error('Error sending questions from the db', err);
+    client.get(`questions:${id}:${page}:${count}`, (err, cacheResults) => {
+      if (err) {
+        console.error('Error getting data from cache', err);
         res.status(500).send();
-      });
+      } else if (cacheResults) {
+        console.log('Fetching from cache', { cacheResults });
+        res.status(200).send(JSON.parse(cacheResults));
+      } else {
+        models.QandA.getAllQuestions(id, page, count)
+          .then((dbResults) => {
+            console.log('Successfully sent questions from the db', { dbResults });
+            client.setex(`questions:${id}:${page}:${count}`, 3600, JSON.stringify({ dbResults }));
+            res.status(200).send({ dbResults });
+          })
+          .catch((error) => {
+            console.error('Error sending questions from the db', error);
+            res.status(500).send();
+          });
+      }
+    });
   },
 
   getAnswers: (req, res) => {
